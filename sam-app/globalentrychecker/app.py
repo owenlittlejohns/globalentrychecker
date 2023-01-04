@@ -6,7 +6,7 @@
     Expected environment variables:
 
     * LOCATION_IDS - A comma separated list of integer location IDs, e.g.:
-      '1234, 2345'.
+      '1234,2345'.
     * SNS_TOPIC_ARN - The ARN for the SNS topic that will publish the message
       containing any appointments. This is defined as part of the
       CloudFormation stack created via SAM.
