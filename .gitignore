@@ -1,3 +1,9 @@
+# SAM configuration file
+sam-app/samconfig.toml
+
+# SAM build artefacts:
+sam-app/.aws-sam
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

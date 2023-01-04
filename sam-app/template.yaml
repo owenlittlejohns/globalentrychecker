@@ -1,0 +1,58 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: |
+  'SAM Template for a Global Entry appointment checker.'
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label: {default: 'Optional parameters'}
+        Parameters:
+          - LocationIds
+          - ProjectName
+
+Parameters:
+  EmailSubscriber:
+    Type: String
+    Description: 'Email address for recipient of notifications.'
+    Default: 'example@example.com'
+  LocationIds:
+    Type: String
+    Description: 'Comma separated list of Global Entry location IDs'
+    Default: '8120'
+  ProjectName:
+    Type: String
+    Description: 'Global Entry appointment checker and notifier.'
+    Default: 'global-entry-checker'
+
+Resources:
+  LambdaGlobalEntryChecker:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: !Sub '${ProjectName}'
+      Handler: 'globalentrychecker.app.handler'
+      Runtime: 'python3.9'
+      Timeout: 30
+      Events:
+        Schedule:
+          Type: 'Schedule'
+          Properties:
+            Schedule: cron(0 0,15,18,21 * * ? *)
+      Environment:
+        Variables:
+          LOCATION_IDS: !Sub '${LocationIds}'
+          SNS_TOPIC_ARN: !Ref SnsTopicGlobalEntryNotifier
+      Policies:
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt SnsTopicGlobalEntryNotifier.TopicName
+  SnsTopicGlobalEntryNotifier:
+    Type: 'AWS::SNS::Topic'
+    Properties:
+      TopicName: !Sub '${ProjectName}'
+      Subscription:
+        - Protocol: 'email'
+          Endpoint: !Sub '${EmailSubscriber}'
+      Tags:
+        - Key: 'Project'
+          Value: !Sub '${ProjectName}'
